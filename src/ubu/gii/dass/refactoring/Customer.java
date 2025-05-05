@@ -41,20 +41,46 @@ public class Customer {
 		double totalAmount = 0;
 		int frequentRenterPoints = 0;
 		Iterator<Rental> rentals = _rentals.iterator();
-		String result = "Rental Record for " + getName() + "\n";
+		
+		String result = generateHeader();
 		while (rentals.hasNext()) {
 			double thisAmount = 0;
 			Rental rental = rentals.next();
 			// determine amounts for each line
-			thisAmount = rental.calculateAmount();
+			thisAmount = rental._movie.calculateAmount(rental.getDaysRented());
 			
 			// add frequent renter points
-			frequentRenterPoints += rental.calculateFrequentRenterPoints();
+			frequentRenterPoints = accumulateFrequentRenterPoints(frequentRenterPoints, rental);
 			// show figures for this rental
-			result += "\t" + rental.getMovie().getTitle() + "\t" + String.valueOf(thisAmount) + "\n";
-			totalAmount += thisAmount;
+			result = appendRentalLine(result, thisAmount, rental);
+			totalAmount = accumulateAmount(totalAmount, thisAmount);
 		}
 		// add footer lines
+		result = generateFooter(totalAmount, frequentRenterPoints, result);
+		return result;
+	}
+
+	private int accumulateFrequentRenterPoints(int frequentRenterPoints, Rental rental) {
+		frequentRenterPoints += rental._movie.calculateFrequentRenterPoints(rental.getDaysRented());
+		return frequentRenterPoints;
+	}
+
+	private double accumulateAmount(double totalAmount, double thisAmount) {
+		totalAmount += thisAmount;
+		return totalAmount;
+	}
+
+	private String appendRentalLine(String result, double thisAmount, Rental rental) {
+		result += "\t" + rental.getMovie().getTitle() + "\t" + String.valueOf(thisAmount) + "\n";
+		return result;
+	}
+
+	private String generateHeader() {
+		String result = "Rental Record for " + getName() + "\n";
+		return result;
+	}
+
+	private String generateFooter(double totalAmount, int frequentRenterPoints, String result) {
 		result += "Amount owed is " + String.valueOf(totalAmount) + "\n";
 		result += "You earned " + String.valueOf(frequentRenterPoints) + " frequent renter points";
 		return result;

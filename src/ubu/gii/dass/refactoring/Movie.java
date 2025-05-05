@@ -6,33 +6,42 @@ package ubu.gii.dass.refactoring;
  * genéricas de java 1.5.
  * 
  * @author M. Fowler y <A HREF="mailto:clopezno@ubu.es">Carlos López</A>
- * @version 1.1
+ * * @author <a HREF="mailto:azs1004@alu.ubu.es">Adrián Zamora Sánchez</a>
+* @author <a HREF="mailto:edr1006@alu.ubu.es">Estíbalitz Diéz Rioja</a>
+* @author <a HREF="mailto:ldg1008@alu.ubu.es">Luis Ignacio De Luna Gómez</a>
+* @author <a HREF="mailto:amp1048@alu.ubu.es">Ahmad Mareie Pascual</a>
+ * @version 1.2
  * @see java.io.File
  * 
  */
 
-public class Movie {
-	public static final int CHILDRENS = 2;
-	public static final int REGULAR = 0;
-	public static final int NEW_RELEASE = 1;
-
+public abstract class Movie {
+	
 	private String _title;
-	private int _priceCode;
+	
 
-	public Movie(String title, int priceCode) {
+	public Movie(String title) {
 		_title = title;
-		_priceCode = priceCode;
-	}
-
-	public int getPriceCode() {
-		return _priceCode;
-	}
-
-	public void setPriceCode(int arg) {
-		_priceCode = arg;
 	}
 
 	public String getTitle() {
 		return _title;
 	}
+
+	/**
+	 * Calcula el importe de una película en función de su tipo y los días.
+	 * @param daysRented 
+	 * 
+	 * @return
+	 */
+	public abstract double calculateAmount(int daysRented); 
+	//Manual no existe un replace Conditional Polimorphish https://refactoring.com/catalog/replaceConditionalWithPolymorphism.html
+
+	/**
+	 * Calcula los puntos de alquiler frecuentes. Se le añade un punto por cada.
+	 * @param daysRented 
+	 * 
+	 * @return
+	 */
+	public abstract int calculateFrequentRenterPoints(int daysRented);
 }
