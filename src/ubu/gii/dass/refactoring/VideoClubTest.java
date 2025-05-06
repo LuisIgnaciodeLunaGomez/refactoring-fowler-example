@@ -58,6 +58,39 @@ public class VideoClubTest {
 		assertTrue("Calcula mal el alquiler", salidaEsperada.equals(salida));
 
 	}
+
+	@Test
+	public void testFormatHTML() {
+
+		Rental r1 = new Rental(m11, 5);
+		Rental r2 = new Rental(m0, 1);
+		Rental r3 = new Rental(m2, 10);
+
+		c1.addRental(r1);
+		c1.addRental(r2);
+		c1.addRental(r3);
+
+		String salida = c1.statementHTML();
+
+		// Calculos iguales que el test anterior pero en diferente formato
+		String salidaEsperadaHTML = new String("<!DOCTYPE html>\n"
+				+ "<html>\n"
+				+ "<head><title>Rental Record</title></head>\n"
+				+ "<body>\n"
+				+ "<h1>Rental Record for <em>Manuel</em></h1>\n"
+				+ "<ul>\n"
+				+ "<li>Sky Captain: 15.0</li>\n"
+				+ "<li>Accion Mutante: 2.0</li>\n"
+				+ "<li>Hermano Oso: 12.0</li>\n"
+				+ "</ul>\n"
+				+ "<p>Amount owed: 29.0<p>\n"
+				+ "<p>Frequent renter points earned: 4</p>\n"
+				+ "</body>\n"
+				+ "</html>");
+		
+		// Se comprueba que el formato HTML es correcto
+		assertTrue("Muestra incorrectamente el formato", salidaEsperadaHTML.equals(salida));
+	}
 	
 	 @Test
 	    public void testRegularMovieLongRental() {

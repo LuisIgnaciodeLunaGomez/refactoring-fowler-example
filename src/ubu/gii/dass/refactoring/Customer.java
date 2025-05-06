@@ -59,6 +59,48 @@ public class Customer {
 		result = generateFooter(totalAmount, frequentRenterPoints, result);
 		return result;
 	}
+	
+	public String statementHTML() {
+		double totalAmount = 0;
+		int frequentRenterPoints = 0;
+		Iterator<Rental> rentals = _rentals.iterator();
+
+		String result = generateHeaderHTML();
+
+		while (rentals.hasNext()) {
+			double thisAmount = 0;
+			Rental rental = rentals.next();
+			thisAmount = rental._movie.calculateAmount(rental.getDaysRented());
+
+			frequentRenterPoints = accumulateFrequentRenterPoints(frequentRenterPoints, rental);
+			result = appendRentalLineHTML(result, thisAmount, rental);
+			totalAmount = accumulateAmount(totalAmount, thisAmount);
+		}
+
+		result = generateFooterHTML(totalAmount, frequentRenterPoints, result);
+
+		return result;
+	}
+
+	private String generateFooterHTML(double totalAmount, int frequentRenterPoints, String result) {
+		result += "</ul>\n";
+		result += "<p>Amount owed: " + totalAmount + "<p>\n";
+		result += "<p>Frequent renter points earned: " + frequentRenterPoints + "</p>\n";
+		result += "</body>\n</html>";
+		return result;
+	}
+
+	private String appendRentalLineHTML(String result, double thisAmount, Rental rental) {
+		result += "<li>" + rental.getMovie().getTitle() + ": " + thisAmount + "</li>\n";
+		return result;
+	}
+
+	private String generateHeaderHTML() {
+		String result = "<!DOCTYPE html>\n<html>\n<head><title>Rental Record</title></head>\n<body>\n";
+		result += "<h1>Rental Record for <em>" + getName() + "</em></h1>\n";
+		result += "<ul>\n";
+		return result;
+	}
 
 	private int accumulateFrequentRenterPoints(int frequentRenterPoints, Rental rental) {
 		frequentRenterPoints += rental._movie.calculateFrequentRenterPoints(rental.getDaysRented());
