@@ -16,7 +16,6 @@ package ubu.gii.dass.refactoring;
 *
 */
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class Customer {
@@ -37,64 +36,84 @@ public class Customer {
 		return _name;
 	};
 
-	public String statement() {
-		double totalAmount = 0;
-		int frequentRenterPoints = 0;
-		Iterator<Rental> rentals = _rentals.iterator();
-		
-		String result = generateHeader();
-		while (rentals.hasNext()) {
-			double thisAmount = 0;
-			Rental rental = rentals.next();
-			// determine amounts for each line
-			thisAmount = rental._movie.calculateAmount(rental.getDaysRented());
-			
-			// add frequent renter points
-			frequentRenterPoints = accumulateFrequentRenterPoints(frequentRenterPoints, rental);
-			// show figures for this rental
-			result = appendRentalLine(result, thisAmount, rental);
-			totalAmount = accumulateAmount(totalAmount, thisAmount);
-		}
-		// add footer lines
-		result = generateFooter(totalAmount, frequentRenterPoints, result);
-		return result;
+	/**
+	 * Enum con los formatos de recibo.	
+	 */
+	private enum Format {
+	    TEXT, HTML
 	}
 	
-	public String statementHTML() {
-		double totalAmount = 0;
-		int frequentRenterPoints = 0;
-		Iterator<Rental> rentals = _rentals.iterator();
-
-		String result = generateHeaderHTML();
-
-		while (rentals.hasNext()) {
-			double thisAmount = 0;
-			Rental rental = rentals.next();
-			thisAmount = rental._movie.calculateAmount(rental.getDaysRented());
-
-			frequentRenterPoints = accumulateFrequentRenterPoints(frequentRenterPoints, rental);
-			result = appendRentalLineHTML(result, thisAmount, rental);
-			totalAmount = accumulateAmount(totalAmount, thisAmount);
-		}
-
-		result = generateFooterHTML(totalAmount, frequentRenterPoints, result);
-
-		return result;
+	/**
+	 * Genera el recibo de alquiler en formato texto.
+	 * 
+	 * @return Recibo de alquiler en formato texto
+	 */
+	public String statement() {
+	    return generateStatement(Format.TEXT);
 	}
 
-	private String generateFooterHTML(double totalAmount, int frequentRenterPoints, String result) {
-		result += "</ul>\n";
+	/**
+	 * Genera el recibo de alquiler en formato HTML.
+	 * 
+	 * @return Recibo de alquiler en formato HTML
+	 */
+	public String statementHTML() {
+	    return generateStatement(Format.HTML);
+	}
+	
+	/**
+	 * Genera el recibo de alquiler en función del formato solicitado.
+	 * 
+	 * @param format Formato del recibo (texto o HTML)
+	 * @return Recibo de alquiler
+	 */
+	private String generateStatement(Format format) {
+	    double totalAmount = 0;
+	    int frequentRenterPoints = 0;
+	    StringBuilder result = new StringBuilder();
+
+	    // Genera la cabecera
+	    result.append(format == Format.TEXT ? generateHeader() : generateHeaderHTML());
+
+	    // Calcula el importe y los puntos de alquiler frecuentes
+	    for (Rental rental : _rentals) {
+	        double thisAmount = rental._movie.calculateAmount(rental.getDaysRented());
+	        frequentRenterPoints += rental._movie.calculateFrequentRenterPoints(rental.getDaysRented());
+	        result.append(format == Format.TEXT 
+	            ? appendRentalLine(thisAmount, rental) 
+	            : appendRentalLineHTML(thisAmount, rental));
+	        totalAmount += thisAmount;
+	    }
+
+	    // Genera el pie
+	    result.append(format == Format.TEXT 
+	        ? generateFooter(totalAmount, frequentRenterPoints) 
+	        : generateFooterHTML(totalAmount, frequentRenterPoints));
+
+	    return result.toString();
+	}
+	
+	/**
+	 * Genera el pie del recibo de alquiler en formato HTML.
+	 */
+	private String generateFooterHTML(double totalAmount, int frequentRenterPoints) {
+		String result = "</ul>\n";
 		result += "<p>Amount owed: " + totalAmount + "<p>\n";
 		result += "<p>Frequent renter points earned: " + frequentRenterPoints + "</p>\n";
 		result += "</body>\n</html>";
 		return result;
 	}
 
-	private String appendRentalLineHTML(String result, double thisAmount, Rental rental) {
-		result += "<li>" + rental.getMovie().getTitle() + ": " + thisAmount + "</li>\n";
-		return result;
+	/**
+	 * Genera una línea del recibo de alquiler en formato HTML.
+	 */
+	private String appendRentalLineHTML(double thisAmount, Rental rental) {
+		return "<li>" + rental.getMovie().getTitle() + ": " + thisAmount + "</li>\n";
 	}
 
+	/**
+	 * Genera el encabezado del recibo de alquiler en formato HTML.
+	 */
 	private String generateHeaderHTML() {
 		String result = "<!DOCTYPE html>\n<html>\n<head><title>Rental Record</title></head>\n<body>\n";
 		result += "<h1>Rental Record for <em>" + getName() + "</em></h1>\n";
@@ -102,28 +121,25 @@ public class Customer {
 		return result;
 	}
 
-	private int accumulateFrequentRenterPoints(int frequentRenterPoints, Rental rental) {
-		frequentRenterPoints += rental._movie.calculateFrequentRenterPoints(rental.getDaysRented());
-		return frequentRenterPoints;
+	/**
+	 * Genera el encabezado del recibo de alquiler.
+	 */
+	private String appendRentalLine(double thisAmount, Rental rental) {
+		return "\t" + rental.getMovie().getTitle() + "\t" + String.valueOf(thisAmount) + "\n";
 	}
 
-	private double accumulateAmount(double totalAmount, double thisAmount) {
-		totalAmount += thisAmount;
-		return totalAmount;
-	}
-
-	private String appendRentalLine(String result, double thisAmount, Rental rental) {
-		result += "\t" + rental.getMovie().getTitle() + "\t" + String.valueOf(thisAmount) + "\n";
-		return result;
-	}
-
+	/**
+	 * Genera el encabezado del recibo de alquiler.
+	 */
 	private String generateHeader() {
-		String result = "Rental Record for " + getName() + "\n";
-		return result;
+		return "Rental Record for " + getName() + "\n";
 	}
 
-	private String generateFooter(double totalAmount, int frequentRenterPoints, String result) {
-		result += "Amount owed is " + String.valueOf(totalAmount) + "\n";
+	/**
+	 * Genera el pie del recibo de alquiler.
+	 */
+	private String generateFooter(double totalAmount, int frequentRenterPoints) {
+		String result = "Amount owed is " + String.valueOf(totalAmount) + "\n";
 		result += "You earned " + String.valueOf(frequentRenterPoints) + " frequent renter points";
 		return result;
 	}

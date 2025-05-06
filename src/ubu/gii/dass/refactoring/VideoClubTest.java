@@ -114,7 +114,6 @@ public class VideoClubTest {
 	     public void testChildrensMovieLongRental() {
 	        Movie childrensMovie = new ChildrensMovie("Pelicula Larga Infantil");
 	        int daysRented = 5; // Mayor que 3 para entrar en el if
-	        Rental longChildrensRental = new Rental(childrensMovie, daysRented);
 	        // Importe: 1.5 + (5 - 3) * 1.5 = 1.5 + 2 * 1.5 = 1.5 + 3.0 = 4.5
 	        double expectedAmount = 4.5;
 	        assertEquals("Importe incorrecto para Childrens > 3 dias", expectedAmount, childrensMovie.calculateAmount(daysRented), 0.001);
@@ -125,7 +124,6 @@ public class VideoClubTest {
 	     public void testNewReleaseMovieBonusPoints() {
 	        Movie newReleaseMovie = new NewReleaseMovie("Estreno Bonus");
 	        int daysRented = 2; // Mayor que 1 para entrar en el if de puntos
-	        Rental bonusNewRelease = new Rental(newReleaseMovie, daysRented);
 	        // Importe: 2 * 3 = 6.0
 	        double expectedAmount = 6.0;
 	         // Puntos: 2 porque daysRented > 1
